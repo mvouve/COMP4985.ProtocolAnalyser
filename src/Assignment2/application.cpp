@@ -80,8 +80,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	ShowWindow(Layout.parent, nCmdShow);
 	InitUI();
 	UpdateWindow(Layout.parent);
-	InitializeCriticalSection(&Section);
-	InitializeCriticalSection(&Printer);
 	
 
 	while (GetMessage(&Msg, NULL, 0, 0))
@@ -117,36 +115,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	case WM_COMMAND:
 		switch (wParam)
 		{
-		case TOP_BUTTON:
-			if (ClientMode == IPMode)
-				CreateThread(NULL, 0, LookupHostHelper, NULL, 10000, NULL);
-			else
-				ServiceLookupHelper();
-			break;
-		case BOTTOM_BUTTON:
-			if (ClientMode == IPMode)
-				LookupIPHelper();
-			else
-				PortLookupHelper();
-			break;
 		case IDM_HELP:
 			Help();
 			break;
 		case IDM_QUIT:
-			DeleteCriticalSection(&Section);
-			DeleteCriticalSection(&Printer);
 			PostQuitMessage(0);
-		case IDM_PORT:
-			ChangeUIPort();
 			break;
-		case IDM_IP:
-			ChangeUIIP();
+		case FILE_BUTTON_MENU:
+			FindFile();
 			break;
 		}
 		break;
 	case WM_DESTROY:    // Terminate program
-		DeleteCriticalSection(&Section);
-		DeleteCriticalSection(&Printer);
 		PostQuitMessage(0);
 		break;
 	case WM_SIZE:
@@ -217,7 +197,10 @@ void InitUI()
 	RECT rect;
 	PAINTSTRUCT PaintStruct;
 	HDC hdc = GetDC(Layout.parent);
+	HINSTANCE hInst = (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE);
 
+
+	//OpenFile();
 	//Create Switcher Button
 	GetClientRect(Layout.parent, &rect);
 
@@ -228,22 +211,25 @@ void InitUI()
 
 	int ipTop = rect.top + 10;
 
-	HWND ipBar = CreateWindow( WC_IPADDRESSA, "", WS_CHILD | WS_VISIBLE | WS_OVERLAPPED, 
-		IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, 20,
-		Layout.parent, NULL, (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE),
-		NULL);
 
-	HWND portBar = CreateWindow(WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_OVERLAPPED, 250,
-		0, IP_BOX_LEN, 20, Layout.parent, NULL, (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE), NULL);
+	HWND ipBar		= CreateInputBox(IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, TEXT_HEIGHT, Layout.parent, hInst );
+	HWND portBar	= CreateInputBox(PORT_BOX_X, 0, PORT_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	HWND fileInput  = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	HWND fileButton = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y, Layout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
 
+	// Add Labels to boxes
 	BeginPaint(Layout.parent, &PaintStruct);
-	//SetBkColor(hdc, 7);
+	SetBkMode(hdc, TRANSPARENT);
+	// Label for IP
 	WriteText(hdc, IP_STRING,   FONT_SIZE, rect.top, rect.left, IP_STRING_LEN);
-	WriteText(hdc, PORT_STRING, FONT_SIZE, rect.top, PORT_X, PORT_STRING_LEN);
+	// Label for Port
+	WriteText(hdc, PORT_STRING, FONT_SIZE, rect.top, PORT_STRING_X, PORT_STRING_LEN);
+	// Label for File
 	WriteText(hdc, FILE_STRING, FONT_SIZE, FILE_Y,   rect.left, FILE_STRING_LEN);
+	// Label for # of Packets
 	WriteText(hdc, PACKET_NUM_STRING, FONT_SIZE, PACKET_NUM_Y, rect.left, PACKET_NUM_STRING_LEN);
-	WriteText(hdc, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, rect.left, PACKET_SIZE_STRING_LEN );
-
+	// Label for size of packets
+	WriteText(hdc, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, rect.left, PACKET_SIZE_STRING_LEN);
 	EndPaint(Layout.parent, &PaintStruct);
 
 }
@@ -269,6 +255,7 @@ void LookupIPHelper()
 	int i = 0;
 	int lineLen;
 
+	/*
 	SetWindowText(Layout.rhs, "");
 	while(lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
 	{
@@ -281,7 +268,7 @@ void LookupIPHelper()
 		free(windowText);
 		i++;
 	}
-
+	*/
 
 }
 
@@ -302,6 +289,7 @@ void LookupIPHelper()
 ----------------------------------------------------------*/
 unsigned long __stdcall LookupHostHelper(LPVOID)
 {
+	/*
 	EnterCriticalSection(&Section);
 	char * buffer;
 	INT i = 0;
@@ -352,7 +340,9 @@ unsigned long __stdcall LookupHostHelper(LPVOID)
 
 		i++;
 	}
+	*/
 
+	return 0L;
 }
 
 
@@ -378,6 +368,7 @@ unsigned long _stdcall ResolveHost(LPVOID addr)
 	std::string newText = ResolveIPFromHost((PCSTR)addr);
 	free(addr);
 
+	/*
 	EnterCriticalSection(&Printer);
 	int len = GetWindowTextLength( Layout.rhs );
 	if (len > 0)
@@ -388,7 +379,7 @@ unsigned long _stdcall ResolveHost(LPVOID addr)
 	}
 	SetWindowText(Layout.rhs, newText.c_str());
 	LeaveCriticalSection(&Printer);
-	
+	*/
 
 	return 0L;
 }
@@ -413,49 +404,8 @@ void Help()
 	MessageBox(Layout.parent, HELP_TEXT, "Help", MB_OK);
 }
 
-/*----------------------------------------------------------
--- void ChangeUIPort()
---
--- DATE: January 21 2015
---
--- DESIGNER: MARC VOUVE
---
--- PROGRAMMER: MARC VOUVE
---
--- INTERFACE void ChangeUIPort()
---
--- RETURNS: VOID
---
--- NOTES: Alters UI to display Port mode
-----------------------------------------------------------*/
-void ChangeUIPort()
-{
-	SetWindowText(Layout.b1, PORT_TO_SERVICE);
-	SetWindowText(Layout.b2, SERVICE_TO_PORT);
-	ClientMode = PortMode;
-}
 
-/*----------------------------------------------------------
--- void ChangeUIIP()
---
--- DATE: January 21 2015
---
--- DESIGNER: MARC VOUVE
---
--- PROGRAMMER: MARC VOUVE
---
--- INTERFACE void ChangeUIIP()
---
--- RETURNS: VOID
---
--- NOTES: Alters the UI to display IP mode.
-----------------------------------------------------------*/
-void ChangeUIIP()
-{
-	SetWindowText(Layout.b1, HOST_TO_IP);
-	SetWindowText(Layout.b2, IP_TO_HOST);
-	ClientMode = IPMode;
-}
+
 
 void PortLookupHelper()
 {
@@ -468,7 +418,7 @@ void PortLookupHelper()
 	char * service = (char *)malloc(PROTOCOL_MAX);
 	std::string display;
 
-	while (lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
+	/*while (lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
 	{
 		buffer[lineLen] = '\0';
 		service  = strtok_s(buffer, " ", &context);
@@ -479,7 +429,7 @@ void PortLookupHelper()
 			display += "Invalid Format, Input [Port] [Service] \r\n";
 		SetWindowText(Layout.rhs, display.c_str());
 		i++;
-	}
+	}*/
 
 	//free(protocol);
 }
@@ -509,6 +459,7 @@ void ServiceLookupHelper()
 	char * protocol = (char *) malloc( PROTOCOL_MAX );
 	std::string display;
 
+	/*
 	while (lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
 	{
 		buffer[lineLen] = '\0';
@@ -521,6 +472,13 @@ void ServiceLookupHelper()
 		SetWindowText(Layout.rhs, display.c_str());
 		i++;
 	}
-
+	*/
 	//free(protocol);
+}
+
+void FindFile()
+{
+	OpenFile(); 
+	OutputDebugString( CStringA(OpenFile()));
+	//SetWindowText(Layout.fileInput, fileName);
 }

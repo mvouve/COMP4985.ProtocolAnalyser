@@ -38,25 +38,42 @@ void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width)
 --
 -- DATE: January 28th 2015
 --
--- DESIGNER: Marc Vouve
+-- DESIGNER: MSDN
 --
--- PROGRAMMER: Marc Vouve
+-- PROGRAMMER:  MSDN
+--				Marc Vouve
 --
 -- PROTOTYPE: HWND CreateInputBox
 --
 -----------------------------------------------------------------------------*/
 HWND CreateInputBox(INT x, INT y, INT width, INT height, HWND  parentHWND, HINSTANCE hInst)
 {
-	return CreateWindow(WC_EDIT, "",
-		WS_BORDER | WS_CHILD | WS_VISIBLE | WS_OVERLAPPED,
+	return CreateWindowEx(0, WC_EDIT, "",
+		WS_BORDER | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
 		x, y, width, height, parentHWND, NULL, hInst, NULL);
 }
 
 
-VOID OpenFile()
+/*-----------------------------------------------------------------------------
+-- FUNCTION: PWSTR OpenFile
+--
+-- Date		 10/5/2010
+--
+-- REVISION: January 28th 2015 - Changed function to return PWSTR
+--
+-- DESIGNER:	MSDN
+--
+-- PROGRAMMER:  MSDN
+--				Marc Vouve
+--
+-- PROTOTYPE: HWND CreateInputBox
+--
+-----------------------------------------------------------------------------*/
+PWSTR OpenFile()
 {
 	IFileOpenDialog *pFileOpen;
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+	PWSTR result = NULL;
 
 	if (SUCCEEDED(hr))
 	{
@@ -80,17 +97,35 @@ VOID OpenFile()
 
 						if (SUCCEEDED(hr))
 						{
-							MessageBox(NULL, ( LPCSTR )pszFilePath, "File Path", MB_OK);
+							result = pszFilePath;
 						}
-
 						pItem->Release();
 					}
-					
-					pFileOpen->Release();
 				}
 				pFileOpen->Release();
 			}
 			CoUninitialize();
 		}
 	}
+
+	return result;
+}
+
+/*-----------------------------------------------------------------------------
+-- FUNCTION: HWND CreateButton()
+--
+-- Date		 January 28, 2015
+--
+-- DESIGNER:	Marc Vouve
+--
+-- PROGRAMMER:  Marc Vouve
+--
+-- PROTOTYPE: HWND CreateButton(LPCSTR buttonName, INT x, INT y, HWND hwnd, HMENU hmenu, HINSTANCE hInst )
+--
+-----------------------------------------------------------------------------*/
+HWND CreateButton(LPCSTR buttonName, INT x, INT y, HWND hwnd, HMENU hmenu, HINSTANCE hInst )
+{
+	return CreateWindowEx(0, WC_BUTTON, buttonName, 
+		WS_CHILD | WS_VISIBLE, 
+		x, y, BUTTON_WIDTH, TEXT_HEIGHT, hwnd, hmenu, hInst, NULL );
 }

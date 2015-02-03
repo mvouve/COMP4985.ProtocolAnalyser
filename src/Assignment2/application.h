@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <CommCtrl.h>
+#include <atlbase.h>
 #include "menu.h"
 #include "uihelper.h"
 
@@ -31,19 +32,30 @@
 
 // IP Boxes
 #define IP_BOX_LEN				150
-#define IP_STRING_X				10
-#define IP_STRING_LEN			20
+#define IP_STRING_X				MARGIN
+#define IP_STRING_LEN			15
 #define IP_STRING				"IP"
 
 // Port Boxes
 #define PORT_STRING				"Port"
-#define PORT_STRING_LEN			40
-#define PORT_X					( IP_BOX_LEN + IP_STRING_LEN + MARGIN * 2)
+#define PORT_STRING_LEN			30
+#define PORT_STRING_X    		( IP_BOX_LEN + IP_STRING_LEN + MARGIN * 2)
+#define PORT_BOX_X				PORT_STRING_X + PORT_STRING_LEN + MARGIN
+#define PORT_BOX_WIDTH			50
 
 // File Boxes
 #define FILE_STRING				"File"
 #define FILE_Y					( TEXT_HEIGHT + MARGIN )
-#define FILE_STRING_LEN			35
+#define FILE_STRING_LEN			25
+
+#define FILE_BOX_X				MARGIN + FILE_STRING_LEN
+#define FILE_BOX_Y				FILE_Y
+#define FILE_BOX_WIDTH			200
+
+#define FILE_BUTTON_STRING		"Find File"
+#define FILE_BUTTON_X			FILE_BOX_X + FILE_BOX_WIDTH + MARGIN
+#define FILE_BUTTON_Y			FILE_Y
+#define FILE_BUTTON_MENU		222
 
 // Packets
 #define PACKET_NUM_STRING		"# of Packets"
@@ -91,6 +103,8 @@ unsigned long __stdcall ResolveHost(LPVOID);
 unsigned long __stdcall LookupHostHelper(LPVOID);
 void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width);
 
+void FindFile();
+
 #define TOP_BUTTON 200
 #define BOTTOM_BUTTON 201
 
@@ -98,22 +112,14 @@ void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width);
 struct layoutStruct
 {
 	HWND parent;
-	HWND lhs;
-	HWND rhs;
-	HWND b1;
-	HWND b2;
+	HWND ipBar;
+	HWND portBar;
+	HWND fileInput;
+	HWND fileButton;
 };
 
-enum ClientMode_e
-{
-	IPMode,
-	PortMode
-};
 
 layoutStruct Layout;
-ClientMode_e ClientMode = IPMode;
-CRITICAL_SECTION Section;
-CRITICAL_SECTION Printer;
 
 
 #endif

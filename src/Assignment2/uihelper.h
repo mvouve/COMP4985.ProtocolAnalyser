@@ -4,19 +4,20 @@
 
 // ------- Includes --------------------
 #include <Windows.h>
-#include <CommCtrl.h>
-#include <shobjidl.h>
+#include <CommCtrl.h>	// This has the macros for Window Types
+#include <shobjidl.h>	// This allows for open file dialogs.
 
 
 
 // -------- Function headers -----------
 void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width);
 HWND CreateInputBox(INT x, INT y, INT width, INT height, HWND  parentHWND, HINSTANCE hInst);
-VOID OpenFile()
-
+PWSTR OpenFile();
+HWND CreateButton(LPCSTR buttonName, INT x, INT y, HWND hwnd, HMENU hmenu, HINSTANCE hInst);
 
 // --------- Defines ---------------------
 
 #define TEXT_HEIGHT 20
+#define BUTTON_WIDTH 70
 
 #endif
