@@ -1,4 +1,4 @@
-#ifndef _IP_RESOLUTION_H_
+ #ifndef _IP_RESOLUTION_H_
 #define _IP_RESOLUTION_H_ 1
 
 #include <WinSock2.h>

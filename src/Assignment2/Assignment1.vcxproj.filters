@@ -24,6 +24,9 @@
     <ClCompile Include="portresolution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="uihelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="menu.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="portresolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uihelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,9 +10,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <CommCtrl.h>
-
 #include "menu.h"
-
+#include "uihelper.h"
 
 #define WINDOW_WIDTH		1000
 #define WINDOW_HEIGHT		500
@@ -23,11 +22,42 @@
 #define BUTTON_TOP_WIDTH		150
 #define BUTTON_TOP_HEIGHT		100
 
-// UI DEFINES
+// --------------------  UI DEFINES ---------------------------------
 #define TEXT_WEIGHT				6
 #define INPUT_WEIGHT			3
 #define TEXT_HEIGHT				20
+#define MARGIN					10
+#define FONT_SIZE				14
 
+// IP Boxes
+#define IP_BOX_LEN				150
+#define IP_STRING_X				10
+#define IP_STRING_LEN			20
+#define IP_STRING				"IP"
+
+// Port Boxes
+#define PORT_STRING				"Port"
+#define PORT_STRING_LEN			40
+#define PORT_X					( IP_BOX_LEN + IP_STRING_LEN + MARGIN * 2)
+
+// File Boxes
+#define FILE_STRING				"File"
+#define FILE_Y					( TEXT_HEIGHT + MARGIN )
+#define FILE_STRING_LEN			35
+
+// Packets
+#define PACKET_NUM_STRING		"# of Packets"
+#define PACKET_NUM_Y			( ( TEXT_HEIGHT + MARGIN ) * 2 )
+#define PACKET_NUM_STRING_LEN	100
+
+#define PACKET_SIZE_STRING		"Size of Packet"
+#define PACKET_SIZE_Y			( ( TEXT_HEIGHT + MARGIN ) * 3 )
+#define PACKET_SIZE_STRING_LEN  100
+// Protocol
+
+
+
+// ----------------- Architectureal Specs ----------------
 #define BUFF_MAX				100
 #define NUM_THREADS				10	//Not sure if this will be suited to all enviroments
 #define THREAD_TIMEOUT			100

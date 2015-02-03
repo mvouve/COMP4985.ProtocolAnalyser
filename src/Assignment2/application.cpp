@@ -30,8 +30,6 @@
 #pragma once
 #include "application.h"
 
-LPTSTR  lpszCommName = TEXT("com1");
-COMMCONFIG  cc;
 HANDLE hComm;
 
 /*----------------------------------------------------------
@@ -231,75 +229,23 @@ void InitUI()
 	int ipTop = rect.top + 10;
 
 	HWND ipBar = CreateWindow( WC_IPADDRESSA, "", WS_CHILD | WS_VISIBLE | WS_OVERLAPPED, 
-		rect.right / TEXT_WEIGHT, 0, rect.right / INPUT_WEIGHT, 20,
+		IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, 20,
 		Layout.parent, NULL, (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE),
 		NULL);
 
-	
+	HWND portBar = CreateWindow(WC_EDIT, "", WS_CHILD | WS_VISIBLE | WS_OVERLAPPED, 250,
+		0, IP_BOX_LEN, 20, Layout.parent, NULL, (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE), NULL);
+
 	BeginPaint(Layout.parent, &PaintStruct);
 	//SetBkColor(hdc, 7);
-	WriteText(hdc, "IP:", 14, rect.top, rect.left, 100);
+	WriteText(hdc, IP_STRING,   FONT_SIZE, rect.top, rect.left, IP_STRING_LEN);
+	WriteText(hdc, PORT_STRING, FONT_SIZE, rect.top, PORT_X, PORT_STRING_LEN);
+	WriteText(hdc, FILE_STRING, FONT_SIZE, FILE_Y,   rect.left, FILE_STRING_LEN);
+	WriteText(hdc, PACKET_NUM_STRING, FONT_SIZE, PACKET_NUM_Y, rect.left, PACKET_NUM_STRING_LEN);
+	WriteText(hdc, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, rect.left, PACKET_SIZE_STRING_LEN );
 
 	EndPaint(Layout.parent, &PaintStruct);
-	
 
-		/*
-	//Top button ( HOST TO IP )
-	Layout.b1 = CreateWindow( "BUTTON", 
-		HOST_TO_IP, WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		buttonX, mY - BUTTON_TOP_HEIGHT - BUTTON_MARGIN, BUTTON_TOP_WIDTH, BUTTON_TOP_HEIGHT, 
-		Layout.parent, (HMENU)TOP_BUTTON, (HINSTANCE)GetWindowLong(Layout.parent, GWL_HINSTANCE), NULL );
-	// Bottom button ( IP TO HOST )
-	Layout.b2 = CreateWindow( "BUTTON",	IP_TO_HOST,
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		buttonX, mY, BUTTON_BOTTOM_WIDTH, BUTTON_BOTTOM_HEIGHT, Layout.parent, (HMENU)BOTTOM_BUTTON,
-		(HINSTANCE)GetWindowLong(Layout.parent, GWL_HINSTANCE),	NULL);
-	// Left hand text box
-	Layout.lhs = CreateWindow( "EDIT", NULL, 
-		WS_VSCROLL | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_CHILD,
-		0, 0,  buttonX -  BUTTON_MARGIN, rect.bottom, Layout.parent,
-		NULL, (HINSTANCE)GetWindowLong(Layout.parent, GWL_HINSTANCE),
-		NULL);
-	// Right hand text box
-	Layout.rhs = CreateWindow( "EDIT", NULL,
-		WS_VSCROLL | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_CHILD | ES_READONLY,
-		buttonX + BUTTON_TOP_WIDTH + BUTTON_MARGIN, 0, buttonX - 10, rect.bottom,
-		Layout.parent, NULL, (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE),
-		NULL);
-		*/
-}
-
-/*-----------------------------------------------------------------------------
--- FUNCTION: void WriteText
--- 
--- DATE: January 28th 2015
--- 
--- DESIGNER: Marc Vouve
--- 
--- PROGRAMMER: Marc Vouve
---
--- PROTOTYPE: void WriteText( HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width )
---			HDC hdc:		The device context of the window that text is being 
---							written on
---			LPCSTR text:	The text to be written.
---			INT sizeText:	the size of the text to write.
---			INT y:			The position on th e y axis that the left side
---							of the window falls
---			INT x:			The position on the x axis that the right side of
---							the window falls
---			INT width:		The width of the text box
--- 
------------------------------------------------------------------------------*/
-void WriteText( HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width )
-{
-	RECT rect;
-
-	rect.top		= y;
-	rect.left		= x;
-	rect.bottom		= rect.top + TEXT_HEIGHT;
-	rect.right		= rect.left + width;
-
-	DrawText( hdc, text, sizeText, &rect, DT_SINGLELINE );
 }
 
 /*----------------------------------------------------------
@@ -311,7 +257,7 @@ void WriteText( HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width )
 --
 -- PROGRAMMER: MARC VOUVE
 --
--- void LookupIPHelper()
+-- PROTOTYPE: void LookupIPHelper()
 --
 -- RETURNS: Formatted information including hostname ip and aliases
 ----------------------------------------------------------*/

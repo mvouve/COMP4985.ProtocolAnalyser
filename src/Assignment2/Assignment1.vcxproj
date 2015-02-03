@@ -82,12 +82,14 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="ipresolution.cpp" />
     <ClCompile Include="portresolution.cpp" />
+    <ClCompile Include="uihelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="ipresolution.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="portresolution.h" />
+    <ClInclude Include="uihelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="menu.rc" />
