@@ -42,16 +42,7 @@ void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width)
 --
 -- PROGRAMMER: Marc Vouve
 --
--- PROTOTYPE: void WriteText( HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width )
---			HDC hdc:		The device context of the window that text is being
---							written on
---			LPCSTR text:	The text to be written.
---			INT sizeText:	the size of the text to write.
---			INT y:			The position on th e y axis that the left side
---							of the window falls
---			INT x:			The position on the x axis that the right side of
---							the window falls
---			INT width:		The width of the text box
+-- PROTOTYPE: HWND CreateInputBox
 --
 -----------------------------------------------------------------------------*/
 HWND CreateInputBox(INT x, INT y, INT width, INT height, HWND  parentHWND, HINSTANCE hInst)
