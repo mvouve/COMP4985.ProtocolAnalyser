@@ -65,7 +65,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	Wcl.lpfnWndProc = WndProc;
 
 	Wcl.hInstance = hInst;
-	Wcl.hbrBackground = (HBRUSH)(COLOR_WINDOW); //white background
+	Wcl.hbrBackground = (HBRUSH)(COLOR_WINDOW); //Background Color
 	Wcl.lpszClassName = Name;
 
 	Wcl.lpszMenuName = TEXT("MYMENU"); // The menu Class
@@ -157,22 +157,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 ----------------------------------------------------------*/
 void Resize()
 {
-	RECT rect;
-
-	GetClientRect(Layout.parent, &rect);
-
-	//int mX = rect.right / 2;
-	//int mY = rect.bottom / 2;
-	//int buttonX = mX - BUTTON_TOP_WIDTH / 2;
-	/*
-	MoveWindow(Layout.b1, buttonX, mY - BUTTON_TOP_HEIGHT - BUTTON_MARGIN, 
-		BUTTON_TOP_WIDTH, BUTTON_TOP_HEIGHT, TRUE );
-	MoveWindow(Layout.b2, buttonX, mY, BUTTON_BOTTOM_WIDTH, BUTTON_BOTTOM_HEIGHT,
-		TRUE);
-	MoveWindow(Layout.lhs, 0, 0, buttonX - BUTTON_MARGIN, rect.bottom, TRUE);
-	MoveWindow(Layout.rhs, buttonX + BUTTON_TOP_WIDTH + BUTTON_MARGIN, 0, buttonX - BUTTON_MARGIN,
-		rect.bottom, TRUE);
-		*/
+	DrawLabels();
 }
 
 /*----------------------------------------------------------
@@ -194,194 +179,56 @@ void Resize()
 ----------------------------------------------------------*/
 void InitUI()
 {
-	RECT rect;
-	PAINTSTRUCT PaintStruct;
-	HDC hdc = GetDC(Layout.parent);
 	HINSTANCE hInst = (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE);
 
+	// Input Box for IP
+	Layout.ipBar = CreateInputBox(IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, TEXT_HEIGHT, Layout.parent, hInst );
+	// Input Box for Port
+	Layout.portBar = CreateInputBox(PORT_BOX_X, 0, PORT_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	// File Input Box
+	Layout.fileInput = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	// Button to open file
+	Layout.fileButton = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y, Layout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
+	// Input for number of packets
+	Layout.numPackets = CreateInputBox(PACKET_NUM_STRING_LEN, PACKET_NUM_BOX_Y, PACKET_NUM_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	// Input for size of packets
+	Layout.sizePackets = CreateInputBox(PACKET_SIZE_STRING_LEN, PACKET_SIZE_Y, PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	// When this button is pressed run test using UDP
+	Layout.udpButton = CreateButton(UDP_STRING, UDP_BUTTON_X, UDP_HEIGHT, Layout.parent, (HMENU)UDP_MENU, hInst);
+	// When this button is pressed run the test using TCP
+	Layout.tcpButton = CreateButton(TCP_STRING, TCP_BUTTON_X, UDP_HEIGHT, Layout.parent, (HMENU)TCP_MENU, hInst);
 
-	//OpenFile();
-	//Create Switcher Button
+	DrawLabels();
+}
+
+/*-----------------------------------------------------------------------------
+-- FUNCTION: DrawLabels
+--
+--
+--
+-----------------------------------------------------------------------------*/
+VOID DrawLabels()
+{
+	HDC hdc = GetDC(Layout.parent);
+	PAINTSTRUCT PaintStruct;
+	RECT rect;
+
 	GetClientRect(Layout.parent, &rect);
-
-	// Calc window midpoints
-	int mX = rect.right / 2;
-	int mY = rect.bottom / 2;
-	// Calcualtions the x value of the buttons position
-
-	int ipTop = rect.top + 10;
-
-
-	HWND ipBar		= CreateInputBox(IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, TEXT_HEIGHT, Layout.parent, hInst );
-	HWND portBar	= CreateInputBox(PORT_BOX_X, 0, PORT_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
-	Layout.fileInput  = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
-	HWND fileButton = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y, Layout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
 
 	// Add Labels to boxes
 	BeginPaint(Layout.parent, &PaintStruct);
 	SetBkMode(hdc, TRANSPARENT);
 	// Label for IP
-	WriteText(hdc, IP_STRING,   FONT_SIZE, rect.top, rect.left, IP_STRING_LEN);
+	WriteText(hdc, IP_STRING, FONT_SIZE, rect.top, rect.left, IP_STRING_LEN);
 	// Label for Port
 	WriteText(hdc, PORT_STRING, FONT_SIZE, rect.top, PORT_STRING_X, PORT_STRING_LEN);
 	// Label for File
-	WriteText(hdc, FILE_STRING, FONT_SIZE, FILE_Y,   rect.left, FILE_STRING_LEN);
+	WriteText(hdc, FILE_STRING, FONT_SIZE, FILE_Y, rect.left, FILE_STRING_LEN);
 	// Label for # of Packets
 	WriteText(hdc, PACKET_NUM_STRING, FONT_SIZE, PACKET_NUM_Y, rect.left, PACKET_NUM_STRING_LEN);
 	// Label for size of packets
 	WriteText(hdc, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, rect.left, PACKET_SIZE_STRING_LEN);
 	EndPaint(Layout.parent, &PaintStruct);
-
-}
-
-/*----------------------------------------------------------
--- void LookupIPHelper()
---
--- DATE: January 19 2015
---
--- DESIGNER: MARC VOUVE
---
--- PROGRAMMER: MARC VOUVE
---
--- PROTOTYPE: void LookupIPHelper()
---
--- RETURNS: Formatted information including hostname ip and aliases
-----------------------------------------------------------*/
-void LookupIPHelper()
-{
-	char buffer[BUFF_MAX];
-	char * windowText;
-	std::string newText;
-	int i = 0;
-	int lineLen;
-
-	/*
-	SetWindowText(Layout.rhs, "");
-	while(lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
-	{
-		buffer[lineLen] = '\0';
-		int len = GetWindowTextLength(Layout.rhs);
-		windowText = (char *) malloc(len);
-		GetWindowText(Layout.rhs, windowText, len);
-		newText = buffer + ResolveHostFromIp(buffer);
-		SetWindowText(Layout.rhs, newText.c_str());
-		free(windowText);
-		i++;
-	}
-	*/
-
-}
-
-/*----------------------------------------------------------
--- unsigned long __stdcall LookupHostHelper(LPVOID)
---
--- DATE: January 19 2015
---
--- DESIGNER: MARC VOUVE
---
--- PROGRAMMER: MARC VOUVE
---
--- unsigned long __stdcall LookupHostHelper(LPVOID)
---
--- RETURNS: 0L
---
--- NOTES: allocates threads to lines
-----------------------------------------------------------*/
-unsigned long __stdcall LookupHostHelper(LPVOID)
-{
-	/*
-	EnterCriticalSection(&Section);
-	char * buffer;
-	INT i = 0;
-	INT len;
-	HANDLE hThread[NUM_THREADS];
-
-	SetWindowText(Layout.rhs, "");
-
-	for (; i < NUM_THREADS; i++ )
-	{
-		buffer = (char *) malloc(BUFF_MAX);
-		if (len = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
-		{
-			buffer[len] = '\0';
-			hThread[i] = CreateThread(NULL, 0, ResolveHost, (LPVOID)buffer, 0, NULL);
-		}
-		else
-		{
-			free((VOID *)buffer);
-			// Make sure all threads return before exiting
-			for (; i > 0; i--)
-				WaitForMultipleObjects(NUM_THREADS, hThread, FALSE, THREAD_TIMEOUT);
-			SetWindowText(Layout.lhs, "");
-			LeaveCriticalSection(&Section);
-
-			return 0L;
-		}
-	}
-	while (1)
-	{
-		HANDLE temp;
-
-		temp = (HANDLE) WaitForMultipleObjects(NUM_THREADS, hThread, FALSE, INFINITE );
-		if (Edit_GetLine(Layout.lhs, i, &buffer, BUFF_MAX))
-		{
-			temp = CreateThread(NULL, 0, ResolveHost, (LPVOID)buffer, 0, NULL);
-		}
-		else
-		{
-			// Make sure all threads return before exiting
-			for (i = NUM_THREADS; i > 0; i--)
-				WaitForMultipleObjects(NUM_THREADS, hThread, FALSE, THREAD_TIMEOUT);
-			SetWindowText(Layout.lhs, "");
-			LeaveCriticalSection(&Section);
-
-			return 0L;
-		}
-
-		i++;
-	}
-	*/
-
-	return 0L;
-}
-
-
-/*----------------------------------------------------------
--- unsigned long _stdcall ResolveHost(LPVOID addr)
---
--- DATE: January 20 2015
---
--- DESIGNER: MARC VOUVE
---
--- PROGRAMMER: MARC VOUVE
---
--- INTERFACE unsigned long _stdcall ResolveHost(LPVOID addr)
---									LPVOID addr The hostname to look up
---
--- RETURNS: 0
---
--- This is intented to be multithreaded and look up Hosts
-----------------------------------------------------------*/
-unsigned long _stdcall ResolveHost(LPVOID addr)
-{
-	// Resolve Hostnames / IPs
-	std::string newText = ResolveIPFromHost((PCSTR)addr);
-	free(addr);
-
-	/*
-	EnterCriticalSection(&Printer);
-	int len = GetWindowTextLength( Layout.rhs );
-	if (len > 0)
-	{
-		char * oldText = (char *)malloc(len);
-		GetWindowText(Layout.rhs, oldText, len);
-		newText = oldText + newText;
-	}
-	SetWindowText(Layout.rhs, newText.c_str());
-	LeaveCriticalSection(&Printer);
-	*/
-
-	return 0L;
 }
 
 /*----------------------------------------------------------
