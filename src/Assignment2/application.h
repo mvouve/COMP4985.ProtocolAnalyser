@@ -14,14 +14,7 @@
 #include "menu.h"
 #include "uihelper.h"
 
-#define WINDOW_WIDTH		1000
-#define WINDOW_HEIGHT		500
-
-/* Top conversion button */
-//#define BUTTON_TOP_X			10
-//#define BUTTON_TOP_Y			10
-#define BUTTON_TOP_WIDTH		150
-#define BUTTON_TOP_HEIGHT		100
+#define FILE_PATH_BUFFER_LENGTH 255
 
 // --------------------  UI DEFINES ---------------------------------
 #define TEXT_WEIGHT				6
@@ -29,6 +22,9 @@
 #define TEXT_HEIGHT				20
 #define MARGIN					10
 #define FONT_SIZE				14
+#define WINDOW_WIDTH		1000
+#define WINDOW_HEIGHT		500
+
 
 // IP Boxes
 #define IP_BOX_LEN				150

@@ -69,11 +69,10 @@ HWND CreateInputBox(INT x, INT y, INT width, INT height, HWND  parentHWND, HINST
 -- PROTOTYPE: HWND CreateInputBox
 --
 -----------------------------------------------------------------------------*/
-PWSTR OpenFile()
+VOID GetFileName( LPSTR result, INT bufferSize )
 {
 	IFileOpenDialog *pFileOpen;
 	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-	PWSTR result = NULL;
 
 	if (SUCCEEDED(hr))
 	{
@@ -97,7 +96,8 @@ PWSTR OpenFile()
 
 						if (SUCCEEDED(hr))
 						{
-							result = pszFilePath;
+							LPWSTR temp = pszFilePath;
+							WideCharToMultiByte(CP_ACP, NULL, temp, -1, result, bufferSize, 0, FALSE);
 						}
 						pItem->Release();
 					}
@@ -107,8 +107,6 @@ PWSTR OpenFile()
 			CoUninitialize();
 		}
 	}
-
-	return result;
 }
 
 /*-----------------------------------------------------------------------------

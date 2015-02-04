@@ -12,7 +12,7 @@
 // -------- Function headers -----------
 void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width);
 HWND CreateInputBox(INT x, INT y, INT width, INT height, HWND  parentHWND, HINSTANCE hInst);
-PWSTR OpenFile();
+VOID GetFileName(LPSTR result, INT bufferSize );
 HWND CreateButton(LPCSTR buttonName, INT x, INT y, HWND hwnd, HMENU hmenu, HINSTANCE hInst);
 
 // --------- Defines ---------------------

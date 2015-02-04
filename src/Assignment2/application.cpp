@@ -161,9 +161,9 @@ void Resize()
 
 	GetClientRect(Layout.parent, &rect);
 
-	int mX = rect.right / 2;
-	int mY = rect.bottom / 2;
-	int buttonX = mX - BUTTON_TOP_WIDTH / 2;
+	//int mX = rect.right / 2;
+	//int mY = rect.bottom / 2;
+	//int buttonX = mX - BUTTON_TOP_WIDTH / 2;
 	/*
 	MoveWindow(Layout.b1, buttonX, mY - BUTTON_TOP_HEIGHT - BUTTON_MARGIN, 
 		BUTTON_TOP_WIDTH, BUTTON_TOP_HEIGHT, TRUE );
@@ -214,7 +214,7 @@ void InitUI()
 
 	HWND ipBar		= CreateInputBox(IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, TEXT_HEIGHT, Layout.parent, hInst );
 	HWND portBar	= CreateInputBox(PORT_BOX_X, 0, PORT_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
-	HWND fileInput  = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	Layout.fileInput  = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
 	HWND fileButton = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y, Layout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
 
 	// Add Labels to boxes
@@ -478,7 +478,16 @@ void ServiceLookupHelper()
 
 void FindFile()
 {
-	OpenFile(); 
-	OutputDebugString( CStringA(OpenFile()));
-	//SetWindowText(Layout.fileInput, fileName);
+	LPSTR FileStr = (LPSTR)malloc(FILE_PATH_BUFFER_LENGTH);
+
+	memset(FileStr, '\0', FILE_PATH_BUFFER_LENGTH);
+
+	GetFileName(FileStr, FILE_PATH_BUFFER_LENGTH);
+	OutputDebugString(FileStr);
+	if (strlen(FileStr))
+	{
+		SetWindowText(Layout.fileInput, FileStr);
+	}
+
+	free(FileStr);
 }
