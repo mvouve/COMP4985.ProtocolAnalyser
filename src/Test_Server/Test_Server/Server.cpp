@@ -34,7 +34,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance, LPSTR lspszCmdParam
 	ShowWindow(window, nCmdShow);
 	UpdateWindow(window);
 
-	CreateThread();
+	CreateThread(NULL, 0, udpListeningThread(),  );
 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{

@@ -1,14 +1,15 @@
-﻿Build started 2015-02-03 11:29:50 PM.
-     1>Project "c:\Users\Marc\documents\visual studio 2013\Projects\Test_Server\Test_Server\Test_Server.vcxproj" on node 2 (Build target(s)).
+﻿Build started 2015-02-04 2:09:59 PM.
+     1>Project "C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Test_Server\Test_Server\Test_Server.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Server.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Control.cpp Server.cpp
          Server.cpp
-     1>c:\users\marc\documents\visual studio 2013\projects\test_server\test_server\server.cpp(53): warning C4065: switch statement contains 'default' but no 'case' labels
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"c:\users\marc\documents\visual studio 2013\Projects\Test_Server\Debug\Test_Server.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"c:\users\marc\documents\visual studio 2013\Projects\Test_Server\Debug\Test_Server.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"c:\users\marc\documents\visual studio 2013\Projects\Test_Server\Debug\Test_Server.lib" /MACHINE:X86 Debug\Server.obj
-         Test_Server.vcxproj -> c:\users\marc\documents\visual studio 2013\Projects\Test_Server\Debug\Test_Server.exe
-     1>Done Building Project "c:\Users\Marc\documents\visual studio 2013\Projects\Test_Server\Test_Server\Test_Server.vcxproj" (Build target(s)).
+     1>c:\users\marc\documents\github\protocol_analyser\src\test_server\test_server\server.cpp(37): error C2059: syntax error : ')'
+     1>c:\users\marc\documents\github\protocol_analyser\src\test_server\test_server\server.cpp(55): warning C4065: switch statement contains 'default' but no 'case' labels
+         Control.cpp
+         Generating Code...
+     1>c:\users\marc\documents\github\protocol_analyser\src\test_server\test_server\control.cpp(6): error C4716: 'udpListeningThread' : must return a value
+     1>Done Building Project "C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Test_Server\Test_Server\Test_Server.vcxproj" (Build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:00.63
+Time Elapsed 00:00:00.98
