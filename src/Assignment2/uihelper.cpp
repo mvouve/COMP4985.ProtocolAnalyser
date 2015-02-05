@@ -21,16 +21,12 @@
 --			INT width:		The width of the text box
 --
 -----------------------------------------------------------------------------*/
-void WriteText(HDC hdc, LPCSTR text, INT sizeText, INT x, INT y, INT width)
+HWND WriteText(HWND parentHWND, HINSTANCE hInst, LPCSTR text, INT sizeText, INT x, INT y, INT width)
 {
-	RECT rect;
+	return CreateWindowEx(0, WC_STATIC, text,
+		 WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
+		y, x, width, TEXT_HEIGHT, parentHWND, NULL, hInst, NULL);
 
-	rect.top = x;
-	rect.left = y;	// I have no idea why x is y and visa versa
-	rect.bottom = rect.top + TEXT_HEIGHT;
-	rect.right = rect.left + width;
-
-	DrawText(hdc, text, sizeText, &rect, DT_SINGLELINE);
 }
 
 /*-----------------------------------------------------------------------------
@@ -121,9 +117,21 @@ VOID GetFileName( LPSTR result, INT bufferSize )
 -- PROTOTYPE: HWND CreateButton(LPCSTR buttonName, INT x, INT y, HWND hwnd, HMENU hmenu, HINSTANCE hInst )
 --
 -----------------------------------------------------------------------------*/
-HWND CreateButton(LPCSTR buttonName, INT x, INT y, HWND hwnd, HMENU hmenu, HINSTANCE hInst )
+HWND CreateButton(LPCSTR buttonName, INT x, INT y, INT width, HWND hwnd, HMENU hmenu, HINSTANCE hInst )
 {
 	return CreateWindowEx(0, WC_BUTTON, buttonName, 
 		WS_CHILD | WS_VISIBLE, 
-		x, y, BUTTON_WIDTH, TEXT_HEIGHT, hwnd, hmenu, hInst, NULL );
+		x, y, width, TEXT_HEIGHT, hwnd, hmenu, hInst, NULL );
+}
+
+HWND CreateGroup( LPCSTR name, INT x, INT y, INT width, INT height, HWND hwnd, HINSTANCE hInst )
+{
+	return CreateWindowEx(0, WC_BUTTON, name, 
+		WS_CHILD | WS_VISIBLE | BS_GROUPBOX | WS_GROUP, x, y, width, height, hwnd, NULL, hInst, NULL);
+}
+
+HWND CreateComboBox(LPCSTR name, INT x, INT y, INT width, HWND parent, HINSTANCE hInst )
+{
+	return CreateWindowEx(0, WC_COMBOBOX, name, WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+		x, y, width, TEXT_HEIGHT * 5, parent, NULL, hInst, NULL);
 }

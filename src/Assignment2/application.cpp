@@ -75,11 +75,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	if (!RegisterClassEx(&Wcl))
 		return 0;
 
-	Layout.parent = CreateWindow(Name, Name, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+	Window = CreateWindow(Name, Name, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 		WINDOW_WIDTH, WINDOW_HEIGHT, NULL, NULL, hInst, NULL);
-	ShowWindow(Layout.parent, nCmdShow);
-	InitUI();
-	UpdateWindow(Layout.parent);
+	ShowWindow(Window, nCmdShow);
+	InitClientUI();
+	InitServerUI();
+	ShowWindow(ServerLayout.parent, HIDE_WINDOW);
+	UpdateWindow(Window);
 	
 
 	while (GetMessage(&Msg, NULL, 0, 0))
@@ -115,6 +117,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	case WM_COMMAND:
 		switch (wParam)
 		{
+		case IDM_CLIENT:
+			ShowWindow(ServerLayout.parent, SW_HIDE);
+			ShowWindow(ClientLayout.parent, SW_SHOW);
+			break;
+		case IDM_SERVER:
+			ShowWindow(ClientLayout.parent, SW_HIDE);
+			ShowWindow(ServerLayout.parent, SW_SHOW);
+			break;
 		case IDM_HELP:
 			Help();
 			break;
@@ -131,6 +141,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		break;
 	case WM_SIZE:
 		Resize();
+		break;
+	case WM_GETMINMAXINFO:
+		//MINMAXINFO *mmi = (MINMAXINFO*)lParam;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = MIN_WIDTH;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = MIN_HEIGHT;
 		break;
 	default:
 		return DefWindowProc(hwnd, Message, wParam, lParam);
@@ -157,7 +172,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 ----------------------------------------------------------*/
 void Resize()
 {
-	DrawLabels();
+	//DrawLabels();
 }
 
 /*----------------------------------------------------------
@@ -177,60 +192,86 @@ void Resize()
 -- This function should not get recalled unless the main window
 -- is distroyed
 ----------------------------------------------------------*/
-void InitUI()
+VOID InitClientUI()
 {
-	HINSTANCE hInst = (HINSTANCE)GetWindow(Layout.parent, GWL_HINSTANCE);
+	HINSTANCE hInst = (HINSTANCE)GetWindow(Window, GWL_HINSTANCE);
+	// Initalize Parent Window
+	ClientLayout.parent = CreateWindowEx(0, WC_PAGESCROLLER, "", WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+		0, 0, CONTROL_WINDOW_WIDTH, WINDOW_HEIGHT, Window, NULL, hInst, NULL);
+	
+	
+	InitClientConnectionUI(hInst);
+	InitClientPacketUI(hInst);
+	InitClientProtocolUI(hInst);
+	InitClientButtons(hInst);
+	
+	//DrawClientLabels();
+}
 
-	// Input Box for IP
-	Layout.ipBar = CreateInputBox(IP_STRING_LEN + MARGIN, 0, IP_BOX_LEN, TEXT_HEIGHT, Layout.parent, hInst );
-	// Input Box for Port
-	Layout.portBar = CreateInputBox(PORT_BOX_X, 0, PORT_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
-	// File Input Box
-	Layout.fileInput = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+VOID InitClientPacketUI(HINSTANCE hInst)
+{
+	HWND packetInfo = CreateGroup(PACKET_INFO_STRING, PACKET_INFO_X, PACKET_INFO_Y,
+		PACKET_INFO_WIDTH, PACKET_INFO_HEIGHT, ClientLayout.parent, hInst);
+	//File Input Box
+	WriteText(ClientLayout.parent, hInst, FILE_STRING, FONT_SIZE, FILE_Y, FILE_STRING_X, FILE_STRING_LEN);
+	ClientLayout.fileInput.input = CreateInputBox(FILE_BOX_X, FILE_BOX_Y, FILE_BOX_WIDTH, 
+		TEXT_HEIGHT, ClientLayout.parent, hInst);
 	// Button to open file
-	Layout.fileButton = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y, Layout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
+	ClientLayout.fileButton.input = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y, 
+		FILE_BUTTON_WIDTH, ClientLayout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
 	// Input for number of packets
-	Layout.numPackets = CreateInputBox(PACKET_NUM_STRING_LEN, PACKET_NUM_BOX_Y, PACKET_NUM_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
+	WriteText(ClientLayout.parent, hInst, PACKET_NUM_STRING, FONT_SIZE, PACKET_NUM_Y, FILE_STRING_X, PACKET_NUM_STRING_LEN);
+	ClientLayout.numPackets.input = CreateInputBox(PACKET_NUM_BOX_X, PACKET_NUM_BOX_Y,
+		PACKET_NUM_BOX_WIDTH, TEXT_HEIGHT, ClientLayout.parent, hInst);
 	// Input for size of packets
-	Layout.sizePackets = CreateInputBox(PACKET_SIZE_STRING_LEN, PACKET_SIZE_Y, PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, Layout.parent, hInst);
-	// When this button is pressed run test using UDP
-	Layout.udpButton = CreateButton(UDP_STRING, UDP_BUTTON_X, UDP_HEIGHT, Layout.parent, (HMENU)UDP_MENU, hInst);
-	// When this button is pressed run the test using TCP
-	Layout.tcpButton = CreateButton(TCP_STRING, TCP_BUTTON_X, UDP_HEIGHT, Layout.parent, (HMENU)TCP_MENU, hInst);
-
-	DrawLabels();
+	ClientLayout.sizePackets.input = CreateInputBox(PACKET_BOX_X, PACKET_SIZE_Y,
+		PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, ClientLayout.parent, hInst);
 }
 
-/*-----------------------------------------------------------------------------
--- FUNCTION: DrawLabels
---
---
---
------------------------------------------------------------------------------*/
-VOID DrawLabels()
+VOID InitClientConnectionUI(HINSTANCE hInst)
 {
-	HDC hdc = GetDC(Layout.parent);
-	PAINTSTRUCT PaintStruct;
-	RECT rect;
+	// Wrapper Window
+	HWND connectionInfo = CreateGroup(CONN_STRING,
+		CONN_X, CONN_Y, CONN_WIDTH, CONN_HEIGHT, ClientLayout.parent, hInst);
 
-	GetClientRect(Layout.parent, &rect);
+	// IP Address
+	WriteText(connectionInfo, hInst, IP_STRING, FONT_SIZE, IP_STRING_X, IP_STRING_Y, IP_STRING_LEN);
+	ClientLayout.ipBar.input = CreateInputBox(IP_STRING_LEN + IP_STRING_Y, IP_STRING_X, IP_BOX_LEN, TEXT_HEIGHT, connectionInfo, hInst);
 
-	// Add Labels to boxes
-	BeginPaint(Layout.parent, &PaintStruct);
-	SetBkMode(hdc, TRANSPARENT);
-	// Label for IP
-	WriteText(hdc, IP_STRING, FONT_SIZE, rect.top, rect.left, IP_STRING_LEN);
-	// Label for Port
-	WriteText(hdc, PORT_STRING, FONT_SIZE, rect.top, PORT_STRING_X, PORT_STRING_LEN);
-	// Label for File
-	WriteText(hdc, FILE_STRING, FONT_SIZE, FILE_Y, rect.left, FILE_STRING_LEN);
-	// Label for # of Packets
-	WriteText(hdc, PACKET_NUM_STRING, FONT_SIZE, PACKET_NUM_Y, rect.left, PACKET_NUM_STRING_LEN);
-	// Label for size of packets
-	WriteText(hdc, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, rect.left, PACKET_SIZE_STRING_LEN);
-	EndPaint(Layout.parent, &PaintStruct);
+	// Test Port
+	WriteText(connectionInfo, hInst, PORT_STRING, FONT_SIZE, PORT_STRING_Y, PORT_STRING_X, PORT_STRING_LEN);
+	ClientLayout.portBar.input = CreateInputBox(PORT_BOX_X, PORT_STRING_Y, PORT_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
+	
+	// Control Port
+	WriteText(ClientLayout.parent, hInst, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, PACKET_STRING_X, PACKET_SIZE_STRING_LEN);
+	WriteText(connectionInfo, hInst, CONTROL_PORT_STRING, FONT_SIZE, CONTROL_PORT_Y, CONTROL_PORT_X,
+		CONTROL_PORT_LEN);
+	ClientLayout.controlPort.input = CreateInputBox(CONTROL_PORT_X + CONTROL_PORT_LEN, CONTROL_PORT_Y, PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
 }
 
+VOID InitClientProtocolUI(HINSTANCE hInst)
+{
+	HWND protocolWrapper = CreateGroup(PROTOCOL_INFO_STRING, PROTOCOL_INFO_X, PROTOCOL_INFO_Y, PROTOCOL_INFO_WIDTH,
+		PROTOCOL_INFO_HEIGHT, ClientLayout.parent, hInst);
+	WriteText(protocolWrapper, hInst, PROTOCOL_INFO_STRING, FONT_SIZE,
+		PROTOCOL_SELECT_Y, PROTOCOL_INFO_X, PROTOCOL_STRING_WIDTH);
+	ClientLayout.protocol.input = CreateComboBox(NULL, PROTOCOL_SELECT_X, PROTOCOL_SELECT_Y, PACKET_SIZE_BOX_WIDTH, protocolWrapper, hInst);
+	ComboBox_AddString(ClientLayout.protocol.input, UDP_STRING);
+	ComboBox_AddString(ClientLayout.protocol.input, TCP_STRING);
+
+}
+
+VOID InitClientButtons(HINSTANCE hInst)
+{
+	HWND buttonWrapper = CreateGroup("", BUTTON_WRAPPER_X, BUTTON_WRAPPER_Y, 
+		BUTTON_WRAPPER_WIDTH, BUTTON_WRAPPER_HEIGHT, ClientLayout.parent, hInst);
+	HWND connectButton = CreateButton(CONNECT_BUTTON_TEXT, BUTTON_X, CONNECT_BUTTON_Y, 
+		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_CONNECT, hInst);
+	HWND disconnectButton = CreateButton(DISCONNECT_BUTTON_TEXT, BUTTON_X, DISCONNECT_BUTTON_Y,
+		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_DISCONNECT, hInst);
+	HWND testButton = CreateButton(TEST_BUTTON_TEXT, BUTTON_X, TEST_BUTTON_Y,
+		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_TEST, hInst);
+}
 /*----------------------------------------------------------
 -- void Help()
 --
@@ -248,7 +289,7 @@ VOID DrawLabels()
 ----------------------------------------------------------*/
 void Help()
 {
-	MessageBox(Layout.parent, HELP_TEXT, "Help", MB_OK);
+	MessageBox(Window, HELP_TEXT, "Help", MB_OK);
 }
 
 
@@ -260,7 +301,6 @@ void PortLookupHelper()
 	int i = 0;
 	
 	char * context = " ";
-	int lineLen;
 	char * protocol = (char *)malloc(PROTOCOL_MAX);
 	char * service = (char *)malloc(PROTOCOL_MAX);
 	std::string display;
@@ -333,8 +373,39 @@ void FindFile()
 	OutputDebugString(FileStr);
 	if (strlen(FileStr))
 	{
-		SetWindowText(Layout.fileInput, FileStr);
+		SetWindowText(ClientLayout.fileInput.input, FileStr);
 	}
 
 	free(FileStr);
+}
+
+VOID InitServerUI()
+{
+	HINSTANCE hInst = (HINSTANCE)GetWindow(Window, GWL_HINSTANCE);
+	// Initalize Parent Window
+	ServerLayout.parent = CreateWindowEx(0, WC_PAGESCROLLER, "", WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+		0, 0, CONTROL_WINDOW_WIDTH, WINDOW_HEIGHT, Window, NULL, hInst, NULL);
+
+	InitServerSettings(hInst);
+	InitServerButtons(hInst);
+}
+
+VOID InitServerSettings(HINSTANCE hInst)
+{
+	HWND connectionInfo = CreateGroup(CONN_STRING,
+		CONN_X, CONN_Y, CONN_WIDTH, CONN_HEIGHT, ServerLayout.parent, hInst);
+
+	// Test Port
+	WriteText(connectionInfo, hInst, PORT_STRING, FONT_SIZE, PORT_STRING_Y, PORT_STRING_X, PORT_STRING_LEN);
+	ServerLayout.TestPort = CreateInputBox(PORT_BOX_X, PORT_STRING_Y, PORT_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
+
+	// Control Port
+	WriteText(ClientLayout.parent, hInst, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, PACKET_STRING_X, PACKET_SIZE_STRING_LEN);
+	WriteText(connectionInfo, hInst, CONTROL_PORT_STRING, FONT_SIZE, CONTROL_PORT_Y, CONTROL_PORT_X,
+		CONTROL_PORT_LEN);
+	ClientLayout.controlPort.input = CreateInputBox(CONTROL_PORT_X + CONTROL_PORT_LEN, CONTROL_PORT_Y, PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
+}
+VOID InitServerButtons(HINSTANCE hInst)
+{
+
 }

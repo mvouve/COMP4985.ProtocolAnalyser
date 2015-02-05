@@ -2,11 +2,8 @@
 
 MYMENU MENU
 {
-    POPUP "Mode"
-    {
-        MENUITEM "&Port/Service", IDM_PORT
-        MENUITEM "&IP Address/Host Name", IDM_IP
-    }
+	MENUITEM "&Client", IDM_CLIENT
+	MENUITEM "&Server", IDM_SERVER
     MENUITEM "&Help", IDM_HELP
     MENUITEM "&Quit", IDM_QUIT
 }

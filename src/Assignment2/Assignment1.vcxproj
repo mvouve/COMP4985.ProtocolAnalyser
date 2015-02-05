@@ -80,12 +80,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
+    <ClCompile Include="control.cpp" />
     <ClCompile Include="ipresolution.cpp" />
     <ClCompile Include="portresolution.cpp" />
     <ClCompile Include="uihelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
+    <ClInclude Include="control.h" />
     <ClInclude Include="ipresolution.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="portresolution.h" />
