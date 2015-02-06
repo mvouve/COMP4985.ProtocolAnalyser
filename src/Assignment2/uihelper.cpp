@@ -135,3 +135,11 @@ HWND CreateComboBox(LPCSTR name, INT x, INT y, INT width, HWND parent, HINSTANCE
 	return CreateWindowEx(0, WC_COMBOBOX, name, WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		x, y, width, TEXT_HEIGHT * 5, parent, NULL, hInst, NULL);
 }
+
+VOID AppendWindowText(HWND hwnd, LPCSTR text)
+{
+	int iLength = GetWindowTextLength(hwnd);
+	SendMessage(hwnd, EM_SETSEL, iLength, iLength);
+	SendMessage(hwnd, EM_REPLACESEL, 0, (LPARAM)text);
+	SendMessage(hwnd, WM_VSCROLL, SB_BOTTOM, (LPARAM)NULL);
+}

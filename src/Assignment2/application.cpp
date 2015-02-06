@@ -18,6 +18,8 @@
 --			  Added Port/Service Handling Jan 20
 --			  Multithreaded Hostname look up for practice Jan 20
 --	
+
+
 --	NOTES:
 --		This program will take a vairable number of user inputs and process
 --		them to a seporate edit text to be used. In general the user can
@@ -112,22 +114,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam )
 {
 
+
 	switch (Message)
 	{
 	case WM_COMMAND:
 		switch (wParam)
 		{
 		case IDM_CLIENT:
-			EnableMenuItem((HMENU)IDM_SERVER, IDM_SERVER, MF_GRAYED | MF_DISABLED);
-			EnableMenuItem((HMENU)IDM_SERVER, IDM_CLIENT, MF_ENABLED);
-			ShowWindow(ServerLayout.parent, SW_HIDE);
-			ShowWindow(ClientLayout.parent, SW_SHOW);
+			EnableClient();
 			break;
 		case IDM_SERVER:
-			EnableMenuItem((HMENU)IDM_SERVER, IDM_SERVER, MF_GRAYED | MF_DISABLED);
-			EnableMenuItem((HMENU)IDM_CLIENT, IDM_CLIENT, MF_ENABLED);
-			ShowWindow(ClientLayout.parent, SW_HIDE);
-			ShowWindow(ServerLayout.parent, SW_SHOW);
+			EnableServer();
 			break;
 		case IDM_HELP:
 			Help();
@@ -137,6 +134,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 		case FILE_BUTTON_MENU:
 			FindFile();
+			break;
+		case IDM_CONNECT:
+			OutputDebugString("hi");
+			OnConnectPress();
+			break;
+		case IDM_DISCONNECT:
 			break;
 		}
 		break;
@@ -155,6 +158,52 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		return DefWindowProc(hwnd, Message, wParam, lParam);
 	}
 	return 0;
+}
+
+/*
+
+
+
+
+*/
+VOID EnableServer()
+{
+	HMENU hmenu = GetMenu(Window);
+
+	EnableMenuItem(hmenu, IDM_SERVER, MF_GRAYED | MF_DISABLED);
+	EnableMenuItem(hmenu, IDM_CLIENT, MF_ENABLED);
+	ShowWindow(ClientLayout.parent, SW_HIDE);
+	ShowWindow(ServerLayout.parent, SW_SHOW);
+
+
+}
+
+/*
+
+
+
+*/
+VOID EnableClient()
+{
+	HMENU hmenu = GetMenu(Window);
+
+	EnableMenuItem(hmenu, IDM_CLIENT, MF_GRAYED | MF_DISABLED);
+	EnableMenuItem(hmenu, IDM_SERVER, MF_ENABLED);
+	ShowWindow(ServerLayout.parent, SW_HIDE);
+	ShowWindow(ClientLayout.parent, SW_SHOW);
+}
+
+VOID OnConnectPress()
+{
+	//Get the IP address for the connection
+	char ipAddr[128];
+	char port[10];
+
+	GetWindowText(ClientLayout.ipBar.input, ipAddr, sizeof(ipAddr));
+	AppendWindowText(ClientLayout.console, "Attempting to Establish a connection to:\r\n ");
+	AppendWindowText(ClientLayout.console, ipAddr + port );
+	AppendWindowText(ClientLayout.console, "\r\n");
+	//ClientConnect();
 }
 
 /*----------------------------------------------------------
@@ -201,7 +250,7 @@ VOID InitClientUI()
 	HINSTANCE hInst = (HINSTANCE)GetWindow(Window, GWL_HINSTANCE);
 	// Initalize Parent Window
 	ClientLayout.parent = CreateWindowEx(0, WC_PAGESCROLLER, "", WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		0, 0, CONTROL_WINDOW_WIDTH, WINDOW_HEIGHT, Window, NULL, hInst, NULL);
+		0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, Window, NULL, hInst, NULL);
 	
 	
 	InitClientConnectionUI(hInst);
@@ -209,7 +258,8 @@ VOID InitClientUI()
 	InitClientProtocolUI(hInst);
 	InitClientButtons(hInst);
 
-	ServerLayout.console = CreateWindow(WC_EDIT, NULL, WS_VISIBLE | WS_CHILD | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL,
+	ClientLayout.console = CreateWindow(WC_EDIT, "", WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_AUTOVSCROLL
+,
 		CONTROL_WINDOW_WIDTH, 0, CONSOLE_WIDTH, CONSOLE_HEIGHT, ClientLayout.parent, NULL, hInst, NULL);
 	
 	//DrawClientLabels();
@@ -272,12 +322,16 @@ VOID InitClientButtons(HINSTANCE hInst)
 {
 	HWND buttonWrapper = CreateGroup("", BUTTON_WRAPPER_X, BUTTON_WRAPPER_Y, 
 		BUTTON_WRAPPER_WIDTH, BUTTON_WRAPPER_HEIGHT, ClientLayout.parent, hInst);
-	HWND connectButton = CreateButton(CONNECT_BUTTON_TEXT, BUTTON_X, CONNECT_BUTTON_Y, 
-		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_CONNECT, hInst);
+	ClientLayout.connectButton = CreateButton(CONNECT_BUTTON_TEXT, BUTTON_X, CONNECT_BUTTON_Y, 
+		BUTTON_WIDTH, ClientLayout.parent, (HMENU)IDM_CONNECT, hInst);
 	HWND disconnectButton = CreateButton(DISCONNECT_BUTTON_TEXT, BUTTON_X, DISCONNECT_BUTTON_Y,
 		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_DISCONNECT, hInst);
 	HWND testButton = CreateButton(TEST_BUTTON_TEXT, BUTTON_X, TEST_BUTTON_Y,
-		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_TEST, hInst);
+		BUTTON_WIDTH, ClientLayout.parent, (HMENU)IDM_TEST, hInst);
+
+
+	//ClientLayout.fileButton.input = CreateButton(FILE_BUTTON_STRING, FILE_BUTTON_X, FILE_BUTTON_Y,
+	//	FILE_BUTTON_WIDTH, ClientLayout.parent, (HMENU)FILE_BUTTON_MENU, hInst);
 }
 /*----------------------------------------------------------
 -- void Help()
@@ -297,35 +351,6 @@ VOID InitClientButtons(HINSTANCE hInst)
 void Help()
 {
 	MessageBox(Window, HELP_TEXT, "Help", MB_OK);
-}
-
-
-
-
-void PortLookupHelper()
-{
-	char buffer[BUFF_MAX];
-	int i = 0;
-	
-	char * context = " ";
-	char * protocol = (char *)malloc(PROTOCOL_MAX);
-	char * service = (char *)malloc(PROTOCOL_MAX);
-	std::string display;
-
-	/*while (lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
-	{
-		buffer[lineLen] = '\0';
-		service  = strtok_s(buffer, " ", &context);
-		protocol = strtok_s(NULL, " ", &context);
-		if (protocol != NULL)
-			 display +=PortLookup(service, protocol);
-		else
-			display += "Invalid Format, Input [Port] [Service] \r\n";
-		SetWindowText(Layout.rhs, display.c_str());
-		i++;
-	}*/
-
-	//free(protocol);
 }
 
 /*----------------------------------------------------------
@@ -423,3 +448,4 @@ VOID InitServerButtons(HINSTANCE hInst)
 	HWND disconnectButton = CreateButton(STOP_BUTTON_STRING, BUTTON_X, DISCONNECT_BUTTON_Y,
 		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_STOP, hInst);
 }
+

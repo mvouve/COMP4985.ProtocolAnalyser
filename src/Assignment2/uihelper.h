@@ -1,6 +1,6 @@
 #ifndef _UI_HELPER_H_
 #define _UI_HELPER_H_
-
+#pragma once
 
 // ------- Includes --------------------
 #include <Windows.h>
@@ -16,6 +16,8 @@ VOID GetFileName(LPSTR result, INT bufferSize );
 HWND CreateButton(LPCSTR buttonName, INT x, INT y, INT width, HWND hwnd, HMENU hmenu, HINSTANCE hInst);
 HWND CreateGroup(LPCSTR name, INT x, INT y, INT width, INT height, HWND hwnd, HINSTANCE hInst);
 HWND CreateComboBox(LPCSTR name, INT x, INT y, INT width, HWND parent, HINSTANCE hInst);
+VOID AppendWindowText(HWND hwnd, LPCSTR text);
+extern HWND Window;
 // --------- Defines ---------------------
 
 #define TEXT_HEIGHT 20

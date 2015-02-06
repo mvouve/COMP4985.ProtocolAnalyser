@@ -2,6 +2,7 @@
 #define _APPLICATION_H_
 
 #pragma comment(lib,"ws2_32")
+#pragma once
 
 #include "ipresolution.h"
 #include "portresolution.h"
@@ -13,6 +14,7 @@
 #include <atlbase.h>
 #include "menu.h"
 #include "uihelper.h"
+#include "control.h"
 
 #define FILE_PATH_BUFFER_LENGTH 255
 
@@ -29,7 +31,7 @@
 #define WINDOW_WIDTH			MIN_WIDTH
 #define WINDOW_HEIGHT			MIN_HEIGHT
 
-#define CONTROL_WINDOW_WIDTH	500
+#define CONTROL_WINDOW_WIDTH	350
 
 
 // IP Boxes
@@ -129,14 +131,14 @@
 #define BUTTON_WRAPPER_HEIGHT	( TEXT_HEIGHT + MARGIN ) * 4
 
 #define CONNECT_BUTTON_TEXT		"Connect"
-#define CONNECT_BUTTON_Y		MARGIN * 2
+#define CONNECT_BUTTON_Y		BUTTON_WRAPPER_Y + MARGIN * 2
 #define DISCONNECT_BUTTON_TEXT	"Disconnect"
 #define DISCONNECT_BUTTON_Y		TEXT_HEIGHT + CONNECT_BUTTON_Y + MARGIN
 #define TEST_BUTTON_TEXT		"Test"
 #define TEST_BUTTON_Y			TEXT_HEIGHT + DISCONNECT_BUTTON_Y + MARGIN
 
 #define BUTTON_WIDTH			300
-#define BUTTON_X				MARGIN
+#define BUTTON_X				MARGIN * 2
 
 // Port Boxes
 #define SERV_SETTINGS_STR			"Settings"
@@ -158,7 +160,7 @@
 
 // Console
 #define CONSOLE_HEIGHT			WINDOW_HEIGHT
-#define CONSOLE_WIDTH			WINDOW_WIDTH - CONTROL_WINDOW_WIDTH
+#define CONSOLE_WIDTH			WINDOW_WIDTH - CONTROL_WINDOW_WIDTH - MARGIN
 
 // --------------- BUTTON DEFINES -----------------------
 #define FILE_BUTTON_MENU		 200
@@ -209,6 +211,10 @@ VOID InitClientButtons(HINSTANCE hInst);
 VOID InitServerButtons(HINSTANCE hInst);
 VOID InitServerSettings(HINSTANCE hInst);
 VOID InitServerUI();
+VOID EnableClient();
+VOID EnableServer();
+
+VOID OnConnectPress();
 
 #define TOP_BUTTON 200
 #define BOTTOM_BUTTON 201
@@ -240,6 +246,7 @@ struct ClientLayoutStruct
 	struct Input sizePackets;
 	struct Input protocol;
 	struct Input controlPort;
+	HWND connectButton;
 	HWND console;
 };
 
