@@ -1,24 +1,14 @@
-﻿Build started 2015-02-05 1:53:18 AM.
+﻿Build started 2015-02-05 12:05:21 PM.
      1>Project "C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Assignment1.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt application.cpp
          application.cpp
      1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.h(138): warning C4005: 'BUTTON_WIDTH' : macro redefinition
                  c:\users\marc\documents\github\protocol_analyser\src\assignment2\uihelper.h(22) : see previous definition of 'BUTTON_WIDTH'
-     1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.cpp(300): warning C4101: 'buffer' : unreferenced local variable
-     1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.cpp(343): warning C4101: 'port' : unreferenced local variable
-     1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.cpp(345): warning C4101: 'lineLen' : unreferenced local variable
-     1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.cpp(341): warning C4101: 'buffer' : unreferenced local variable
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Debug\Assignment1.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Debug\Assignment1.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Debug\Assignment1.lib" /MACHINE:X86 Debug\menu.res
-         Debug\application.obj
-         Debug\control.obj
-         Debug\ipresolution.obj
-         Debug\portresolution.obj
-         Debug\uihelper.obj
-         Assignment1.vcxproj -> C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Debug\Assignment1.exe
-     1>Done Building Project "C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Assignment1.vcxproj" (Build target(s)).
+     1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.cpp(127): error C2660: 'EnableMenuItem' : function does not take 2 arguments
+     1>c:\users\marc\documents\github\protocol_analyser\src\assignment2\application.cpp(128): error C2660: 'EnableMenuItem' : function does not take 2 arguments
+     1>Done Building Project "C:\Users\Marc\Documents\GitHub\Protocol_Analyser\src\Assignment2\Assignment1.vcxproj" (Build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:01.30
+Time Elapsed 00:00:01.08

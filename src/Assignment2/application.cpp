@@ -118,10 +118,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		switch (wParam)
 		{
 		case IDM_CLIENT:
+			EnableMenuItem((HMENU)IDM_SERVER, IDM_SERVER, MF_GRAYED | MF_DISABLED);
+			EnableMenuItem((HMENU)IDM_SERVER, IDM_CLIENT, MF_ENABLED);
 			ShowWindow(ServerLayout.parent, SW_HIDE);
 			ShowWindow(ClientLayout.parent, SW_SHOW);
 			break;
 		case IDM_SERVER:
+			EnableMenuItem((HMENU)IDM_SERVER, IDM_SERVER, MF_GRAYED | MF_DISABLED);
+			EnableMenuItem((HMENU)IDM_CLIENT, IDM_CLIENT, MF_ENABLED);
 			ShowWindow(ClientLayout.parent, SW_HIDE);
 			ShowWindow(ServerLayout.parent, SW_SHOW);
 			break;
@@ -204,6 +208,9 @@ VOID InitClientUI()
 	InitClientPacketUI(hInst);
 	InitClientProtocolUI(hInst);
 	InitClientButtons(hInst);
+
+	ServerLayout.console = CreateWindow(WC_EDIT, NULL, WS_VISIBLE | WS_CHILD | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL,
+		CONTROL_WINDOW_WIDTH, 0, CONSOLE_WIDTH, CONSOLE_HEIGHT, ClientLayout.parent, NULL, hInst, NULL);
 	
 	//DrawClientLabels();
 }
@@ -385,6 +392,8 @@ VOID InitServerUI()
 	// Initalize Parent Window
 	ServerLayout.parent = CreateWindowEx(0, WC_PAGESCROLLER, "", WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		0, 0, CONTROL_WINDOW_WIDTH, WINDOW_HEIGHT, Window, NULL, hInst, NULL);
+	ServerLayout.console = CreateWindow(WC_EDIT, NULL, WS_VISIBLE | WS_CHILD | ES_READONLY | ES_MULTILINE | ES_AUTOVSCROLL,
+		CONTROL_WINDOW_WIDTH, 0, CONSOLE_WIDTH, CONSOLE_HEIGHT, ServerLayout.parent, NULL, hInst, NULL);
 
 	InitServerSettings(hInst);
 	InitServerButtons(hInst);
@@ -392,20 +401,25 @@ VOID InitServerUI()
 
 VOID InitServerSettings(HINSTANCE hInst)
 {
-	HWND connectionInfo = CreateGroup(CONN_STRING,
+	HWND connectionInfo = CreateGroup(SERV_SETTINGS_STR,
 		CONN_X, CONN_Y, CONN_WIDTH, CONN_HEIGHT, ServerLayout.parent, hInst);
 
 	// Test Port
-	WriteText(connectionInfo, hInst, PORT_STRING, FONT_SIZE, PORT_STRING_Y, PORT_STRING_X, PORT_STRING_LEN);
-	ServerLayout.TestPort = CreateInputBox(PORT_BOX_X, PORT_STRING_Y, PORT_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
+	WriteText(connectionInfo, hInst, SERV_PORT_STRING, FONT_SIZE, SERV_PORT_STRING_Y, SERV_PORT_STRING_X, PORT_STRING_LEN);
+	ServerLayout.TestPort = CreateInputBox(SERV_PORT_BOX_X, SERV_PORT_STRING_Y, SERV_PORT_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
 
 	// Control Port
-	WriteText(ClientLayout.parent, hInst, PACKET_SIZE_STRING, FONT_SIZE, PACKET_SIZE_Y, PACKET_STRING_X, PACKET_SIZE_STRING_LEN);
-	WriteText(connectionInfo, hInst, CONTROL_PORT_STRING, FONT_SIZE, CONTROL_PORT_Y, CONTROL_PORT_X,
+	//WriteText(ServerLayout.parent, hInst, PACKET_SIZE_STRING, FONT_SIZE, SERV_CONTROL_PORT_Y, SERV_CONTROL_PORT_X, PACKET_SIZE_STRING_LEN);
+	WriteText(connectionInfo, hInst, SERV_CONTROL_PORT_STRING, FONT_SIZE, SERV_CONTROL_PORT_Y, CONTROL_PORT_X,
 		CONTROL_PORT_LEN);
-	ClientLayout.controlPort.input = CreateInputBox(CONTROL_PORT_X + CONTROL_PORT_LEN, CONTROL_PORT_Y, PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
+	ClientLayout.controlPort.input = CreateInputBox(CONTROL_PORT_X + CONTROL_PORT_LEN, SERV_CONTROL_PORT_Y, PACKET_SIZE_BOX_WIDTH, TEXT_HEIGHT, connectionInfo, hInst);
 }
 VOID InitServerButtons(HINSTANCE hInst)
 {
-
+	HWND buttonWrapper = CreateGroup("", BUTTON_WRAPPER_X, BUTTON_WRAPPER_Y,
+		BUTTON_WRAPPER_WIDTH, BUTTON_WRAPPER_HEIGHT, ServerLayout.parent, hInst);
+	HWND connectButton = CreateButton(LISTEN_BUTTON_STRING, BUTTON_X, CONNECT_BUTTON_Y,
+		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_LISTEN, hInst);
+	HWND disconnectButton = CreateButton(STOP_BUTTON_STRING, BUTTON_X, DISCONNECT_BUTTON_Y,
+		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_STOP, hInst);
 }

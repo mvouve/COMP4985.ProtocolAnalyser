@@ -138,6 +138,28 @@
 #define BUTTON_WIDTH			300
 #define BUTTON_X				MARGIN
 
+// Port Boxes
+#define SERV_SETTINGS_STR			"Settings"
+#define SERV_PORT_STRING			"Test Port"
+#define SERV_PORT_STRING_LEN		100
+#define SERV_PORT_STRING_X    		MARGIN
+#define SERV_PORT_STRING_Y			MARGIN * 2
+#define SERV_PORT_BOX_X				SERV_PORT_STRING_X + SERV_PORT_STRING_LEN
+#define SERV_PORT_BOX_WIDTH			200
+
+// Control Port
+#define SERV_CONTROL_PORT_STRING	"Control Port"
+#define SERV_CONTROL_PORT_X			MARGIN
+#define SERV_CONTROL_PORT_Y			SERV_PORT_STRING_Y + TEXT_HEIGHT + MARGIN
+#define SERV_CONTROL_PORT_LEN		100
+
+#define LISTEN_BUTTON_STRING		"Listen"
+#define STOP_BUTTON_STRING			"Stop"
+
+// Console
+#define CONSOLE_HEIGHT			WINDOW_HEIGHT
+#define CONSOLE_WIDTH			WINDOW_WIDTH - CONTROL_WINDOW_WIDTH
+
 // --------------- BUTTON DEFINES -----------------------
 #define FILE_BUTTON_MENU		 200
 #define IDM_CONNECT				 201
@@ -204,6 +226,7 @@ struct ServerLayoutStruct
 	HWND TestPort;
 	HWND ControlPort;
 	HWND SaveFile;
+	HWND console;
 };
 
 struct ClientLayoutStruct
@@ -217,6 +240,7 @@ struct ClientLayoutStruct
 	struct Input sizePackets;
 	struct Input protocol;
 	struct Input controlPort;
+	HWND console;
 };
 
 
