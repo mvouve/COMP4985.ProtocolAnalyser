@@ -5,9 +5,17 @@
 // ----- HEADERS ------
 //#include <Windows.h>
 //#include "application.h"
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
 #include "uihelper.h"
 
-VOID ClientConnect();
+ConnectionError ControlConnect(LPCSTR ipAddr,LPCSTR port);
+
+enum ConnectionError
+{
+	INVALID_PORT,
+	INVALID_HOST
+};
 
 //
 

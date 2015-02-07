@@ -201,9 +201,9 @@ VOID OnConnectPress()
 
 	GetWindowText(ClientLayout.ipBar.input, ipAddr, sizeof(ipAddr));
 	AppendWindowText(ClientLayout.console, "Attempting to Establish a connection to:\r\n ");
-	AppendWindowText(ClientLayout.console, ipAddr + port );
+	//AppendWindowText(ClientLayout.console, ipAddr + port );
 	AppendWindowText(ClientLayout.console, "\r\n");
-	//ClientConnect();
+	ControlConnect(ipAddr, port);
 }
 
 /*----------------------------------------------------------
