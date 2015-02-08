@@ -57,6 +57,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 {
 	MSG Msg;
 	WNDCLASSEX Wcl;
+	WSADATA wsadata;
 
 	Wcl.cbSize = sizeof(WNDCLASSEX);
 	Wcl.style = CS_HREDRAW | CS_VREDRAW;
@@ -84,7 +85,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	InitServerUI();
 	ShowWindow(ServerLayout.parent, HIDE_WINDOW);
 	UpdateWindow(Window);
-	
+	WSAStartup(MAKEWORD(2, 2), &wsadata);
 
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
@@ -113,44 +114,56 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam )
 {
-
+	// hold onto socket to pass into clicks.
+	static int controlSocket;
+	static int testSocket;
 
 	switch (Message)
 	{
 	case WM_COMMAND:
 		switch (wParam)
 		{
-		case IDM_CLIENT:
+		case IDM_CLIENT:		// put application in client mode
 			EnableClient();
 			break;
-		case IDM_SERVER:
+		case IDM_SERVER:		// put application in server mode
 			EnableServer();
 			break;
-		case IDM_HELP:
+		case IDM_HELP:			// display help window
 			Help();
 			break;
-		case IDM_QUIT:
+		case IDM_QUIT:			// exit application
 			PostQuitMessage(0);
 			break;
-		case FILE_BUTTON_MENU:
+		case FILE_BUTTON_MENU:  // select file to send
 			FindFile();
 			break;
-		case IDM_CONNECT:
-			OutputDebugString("hi");
-			OnConnectPress();
+		case IDM_CONNECT:		// connect to server
+			OnConnectPress(&controlSocket);
 			break;
-		case IDM_DISCONNECT:
+		case IDM_DISCONNECT:	// disconnect from server
+			OnDisconnectPress(&controlSocket);
+			break;
+		case IDM_LISTEN:
+			OnListenPress(&controlSocket);
+			break;
+		case IDM_STOP:
+			OnStopPress(&controlSocket);
+			break;
+		case IDM_TEST:
+			OnTestPress(&testSocket);
 			break;
 		}
 		break;
 	case WM_DESTROY:    // Terminate program
+		shutdown(controlSocket, 2);
+		shutdown(testSocket, 2);
 		PostQuitMessage(0);
 		break;
 	case WM_SIZE:
 		Resize();
 		break;
 	case WM_GETMINMAXINFO:
-		//MINMAXINFO *mmi = (MINMAXINFO*)lParam;
 		((MINMAXINFO*)lParam)->ptMinTrackSize.x = MIN_WIDTH;
 		((MINMAXINFO*)lParam)->ptMinTrackSize.y = MIN_HEIGHT;
 		break;
@@ -193,18 +206,89 @@ VOID EnableClient()
 	ShowWindow(ClientLayout.parent, SW_SHOW);
 }
 
-VOID OnConnectPress()
+VOID OnConnectPress(int * sock)
 {
 	//Get the IP address for the connection
 	char ipAddr[128];
 	char port[10];
 
 	GetWindowText(ClientLayout.ipBar.input, ipAddr, sizeof(ipAddr));
-	AppendWindowText(ClientLayout.console, "Attempting to Establish a connection to:\r\n ");
-	//AppendWindowText(ClientLayout.console, ipAddr + port );
-	AppendWindowText(ClientLayout.console, "\r\n");
-	ControlConnect(ipAddr, port);
+	GetWindowText(ClientLayout.controlPort.input, port, sizeof port);
+	ControlConnect(ipAddr, port, Window, IDM_CONTROL_SELECT, sock);
+	if (*sock > 0)
+	{
+		EnableWindow(ClientLayout.connectButton, FALSE);
+		EnableWindow(ClientLayout.disconnectButton, TRUE);
+	}
+	
+	
 }
+
+VOID OnDisconnectPress(int * sock)
+{
+	EnableWindow(ClientLayout.connectButton, TRUE);
+	EnableWindow(ClientLayout.disconnectButton, FALSE);
+	shutdown(*sock, SO_LINGER);
+}
+
+
+VOID OnTestPress(int * sock)
+{
+
+	char filepath[255];
+	char buffer[55555];
+	HANDLE file;
+	DWORD yolo = 0L;
+	OVERLAPPED ol = { 0 };
+
+	GetWindowText(ClientLayout.fileInput.input, filepath, sizeof filepath);
+
+	if (strlen(filepath) > 1)
+	{
+		file = CreateFile(filepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+
+		if (file == INVALID_HANDLE_VALUE)
+		{
+			MessageBox(NULL, "Error Opening File", "Error", MB_OK);
+
+			return;
+		}
+		memset(buffer, 0, sizeof buffer);
+		ReadFileEx(file, buffer, 40, &ol, FileCompletionRoutine);
+
+
+		AppendWindowText(ClientLayout.console, buffer);
+		CloseHandle(file);
+	}
+}
+
+VOID CALLBACK FileCompletionRoutine(DWORD err, DWORD numBytes, LPOVERLAPPED ol)
+{
+
+}
+
+VOID OnListenPress(int * sock)
+{
+
+	if (*sock)
+	{
+		EnableWindow(ServerLayout.listen, FALSE);
+		EnableWindow(ServerLayout.stopListen, TRUE);
+	}
+}
+
+VOID OnStopPress(int * sock)
+{
+	EnableWindow(ServerLayout.listen, TRUE);
+	EnableWindow(ServerLayout.stopListen, FALSE);
+	
+	
+}
+
+
+
+
 
 /*----------------------------------------------------------
 -- void Resize()
@@ -324,8 +408,8 @@ VOID InitClientButtons(HINSTANCE hInst)
 		BUTTON_WRAPPER_WIDTH, BUTTON_WRAPPER_HEIGHT, ClientLayout.parent, hInst);
 	ClientLayout.connectButton = CreateButton(CONNECT_BUTTON_TEXT, BUTTON_X, CONNECT_BUTTON_Y, 
 		BUTTON_WIDTH, ClientLayout.parent, (HMENU)IDM_CONNECT, hInst);
-	HWND disconnectButton = CreateButton(DISCONNECT_BUTTON_TEXT, BUTTON_X, DISCONNECT_BUTTON_Y,
-		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_DISCONNECT, hInst);
+	ClientLayout.disconnectButton = CreateButton(DISCONNECT_BUTTON_TEXT, BUTTON_X, DISCONNECT_BUTTON_Y,
+		BUTTON_WIDTH, ClientLayout.parent, (HMENU)IDM_DISCONNECT, hInst);
 	HWND testButton = CreateButton(TEST_BUTTON_TEXT, BUTTON_X, TEST_BUTTON_Y,
 		BUTTON_WIDTH, ClientLayout.parent, (HMENU)IDM_TEST, hInst);
 
@@ -353,47 +437,6 @@ void Help()
 	MessageBox(Window, HELP_TEXT, "Help", MB_OK);
 }
 
-/*----------------------------------------------------------
--- ServiceLookupHelper()
---
--- DATE: January 21 2015
---
--- DESIGNER: MARC VOUVE
---
--- PROGRAMMER: MARC VOUVE
---
--- ServiceLookupHelper()
---
--- RETURNS: VOID
---
--- Outputs ports services and protocols of requested service
-----------------------------------------------------------*/
-void ServiceLookupHelper()
-{
-	char buffer[BUFF_MAX];
-	int i = 0;
-	int port;
-	char * context = " ";
-	int lineLen;
-	char * protocol = (char *) malloc( PROTOCOL_MAX );
-	std::string display;
-
-	/*
-	while (lineLen = Edit_GetLine(Layout.lhs, i, buffer, BUFF_MAX))
-	{
-		buffer[lineLen] = '\0';
-		port = atoi(strtok_s(buffer, " ", &context));
-		protocol = strtok_s(NULL, " ", &context);
-		if (protocol != NULL)
-			display += ServiceLookup(port, protocol);
-		else
-			display += "Invalid Format, Input [Port] [Service] \r\n";
-		SetWindowText(Layout.rhs, display.c_str());
-		i++;
-	}
-	*/
-	//free(protocol);
-}
 
 void FindFile()
 {
@@ -443,9 +486,9 @@ VOID InitServerButtons(HINSTANCE hInst)
 {
 	HWND buttonWrapper = CreateGroup("", BUTTON_WRAPPER_X, BUTTON_WRAPPER_Y,
 		BUTTON_WRAPPER_WIDTH, BUTTON_WRAPPER_HEIGHT, ServerLayout.parent, hInst);
-	HWND connectButton = CreateButton(LISTEN_BUTTON_STRING, BUTTON_X, CONNECT_BUTTON_Y,
-		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_LISTEN, hInst);
-	HWND disconnectButton = CreateButton(STOP_BUTTON_STRING, BUTTON_X, DISCONNECT_BUTTON_Y,
-		BUTTON_WIDTH, buttonWrapper, (HMENU)IDM_STOP, hInst);
+	ServerLayout.listen = CreateButton(LISTEN_BUTTON_STRING, BUTTON_X, CONNECT_BUTTON_Y,
+		BUTTON_WIDTH, ServerLayout.parent, (HMENU)IDM_LISTEN, hInst);
+	ServerLayout.stopListen = CreateButton(STOP_BUTTON_STRING, BUTTON_X, DISCONNECT_BUTTON_Y,
+		BUTTON_WIDTH, ServerLayout.parent, (HMENU)IDM_STOP, hInst);
 }
 
